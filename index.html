@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum — Gerador de Currículos Profissionais</title>
+    <!-- Tailwind CSS para o Formulário -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background-color: #F8FAFC; color: #1E293B; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* CONTAINER DE PREVIEW NA TELA */
+        .preview-container { 
+            background: white; 
+            width: 794px; 
+            min-height: 1123px; 
+            padding: 50px 60px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+            text-align: left; 
+            box-sizing: border-box;
+        }
+        
+        /* ESTILOS DE VISUALIZAÇÃO EM TELA */
+        .cv-screen-box h1 { font-family: Arial, Helvetica, sans-serif; font-size: 22pt; font-weight: bold; text-transform: uppercase; color: #000000; margin: 0 0 6px 0; text-align: center; }
+        .cv-screen-box .contato-linha { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #444444; text-align: center; margin-bottom: 20px; line-height: 1.4; }
+        .cv-screen-box h2 { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; color: #000000; margin: 20px 0 8px 0; border-bottom: 1.5px solid #000000; padding-bottom: 2px; }
+        .cv-screen-box p, .cv-screen-box div, .cv-screen-box td { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; color: #111111; line-height: 1.5; }
+        
+        .cv-screen-box-moderno h1 { font-family: 'Inter', sans-serif; font-size: 24pt; font-weight: 700; color: #1E40AF; text-align: left; margin: 0 0 2px 0; }
+        .cv-screen-box-moderno .cargo-sub { font-family: 'Inter', sans-serif; font-size: 12pt; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .cv-screen-box-moderno .contato-caixa { background-color: #F1F5F9; padding: 10px 14px; border-radius: 6px; font-size: 9.5pt; color: #334155; margin-bottom: 20px; border-left: 4px solid #1E40AF; }
+        .cv-screen-box-moderno h2 { font-family: 'Inter', sans-serif; font-size: 12pt; font-weight: 700; color: #1E40AF; margin: 20px 0 8px 0; border-bottom: 2px solid #E2E8F0; padding-bottom: 3px; text-transform: uppercase; }
+        .cv-screen-box-moderno p, .cv-screen-box-moderno div, .cv-screen-box-moderno td { font-family: 'Inter', sans-serif; font-size: 10.5pt; color: #1E293B; line-height: 1.5; }
+
+        .cv-screen-box-executivo h1 { font-family: 'Georgia', serif; font-size: 24pt; font-weight: bold; color: #0F172A; text-align: center; margin: 0 0 2px 0; }
+        .cv-screen-box-executivo .cargo-sub { font-family: 'Georgia', serif; font-size: 11pt; font-style: italic; color: #475569; text-align: center; margin-bottom: 12px; }
+        .cv-screen-box-executivo .contato-linha { font-family: 'Inter', sans-serif; font-size: 9.5pt; color: #334155; text-align: center; margin-bottom: 20px; border-bottom: 1px dashed #94A3B8; padding-bottom: 10px; }
+        .cv-screen-box-executivo h2 { font-family: 'Georgia', serif; font-size: 11.5pt; font-weight: bold; color: #0F172A; margin: 20px 0 8px 0; border-bottom: 2px solid #334155; padding-bottom: 2px; text-transform: uppercase; }
+        .cv-screen-box-executivo p, .cv-screen-box-executivo div, .cv-screen-box-executivo td { font-family: 'Georgia', serif; font-size: 10.5pt; color: #0F172A; line-height: 1.5; }
+
+        .tabela-alinhada { width: 100%; border-collapse: collapse; margin-bottom: 4px; table-layout: fixed; }
+        .tabela-alinhada td { padding: 0; vertical-align: top; }
+        .col-direita { text-align: right; font-weight: bold; width: 140px; color: #333333; }
+
+        /* ===== CSS DE IMPRESSÃO — só ativo ao imprimir ===== */
+        @media print {
+            @page {
+                size: A4;
+                margin: 18mm 15mm 18mm 15mm;
+            }
+
+            /* Esconde TUDO da interface */
+            body > * { display: none !important; }
+
+            /* Mostra só a folha do currículo */
+            #print-area { display: block !important; }
+
+            #print-area {
+                position: static !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                background: white !important;
+                font-size: 10.5pt;
+                color: #000;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* ATS */
+            #print-area.print-ats h1 { font-family: Arial, Helvetica, sans-serif; font-size: 22pt; font-weight: bold; text-transform: uppercase; color: #000; margin: 0 0 6px 0; text-align: center; }
+            #print-area.print-ats .contato-linha { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #444; text-align: center; margin-bottom: 20px; line-height: 1.4; }
+            #print-area.print-ats h2 { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; font-weight: bold; text-transform: uppercase; color: #000; margin: 16px 0 6px 0; border-bottom: 1.5px solid #000; padding-bottom: 2px; }
+            #print-area.print-ats p, #print-area.print-ats div, #print-area.print-ats td { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; color: #111; line-height: 1.5; }
+
+            /* MODERNO */
+            #print-area.print-moderno h1 { font-family: Arial, Helvetica, sans-serif; font-size: 24pt; font-weight: bold; color: #1E40AF; text-align: left; margin: 0 0 2px 0; }
+            #print-area.print-moderno .cargo-sub { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; font-weight: bold; color: #64748B; text-transform: uppercase; margin-bottom: 12px; }
+            #print-area.print-moderno .contato-caixa { background-color: #F1F5F9 !important; padding: 10px 14px; border-radius: 6px; font-size: 9.5pt; color: #334155; margin-bottom: 20px; border-left: 4px solid #1E40AF !important; }
+            #print-area.print-moderno h2 { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; font-weight: bold; color: #1E40AF; margin: 16px 0 6px 0; border-bottom: 2px solid #E2E8F0; padding-bottom: 3px; text-transform: uppercase; }
+            #print-area.print-moderno p, #print-area.print-moderno div, #print-area.print-moderno td { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; color: #1E293B; line-height: 1.5; }
+
+            /* EXECUTIVO */
+            #print-area.print-executivo h1 { font-family: Georgia, serif; font-size: 24pt; font-weight: bold; color: #0F172A; text-align: center; margin: 0 0 2px 0; }
+            #print-area.print-executivo .cargo-sub { font-family: Georgia, serif; font-size: 11pt; font-style: italic; color: #475569; text-align: center; margin-bottom: 12px; }
+            #print-area.print-executivo .contato-linha { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: #334155; text-align: center; margin-bottom: 20px; border-bottom: 1px dashed #94A3B8; padding-bottom: 10px; }
+            #print-area.print-executivo h2 { font-family: Georgia, serif; font-size: 11.5pt; font-weight: bold; color: #0F172A; margin: 16px 0 6px 0; border-bottom: 2px solid #334155; padding-bottom: 2px; text-transform: uppercase; }
+            #print-area.print-executivo p, #print-area.print-executivo div, #print-area.print-executivo td { font-family: Georgia, serif; font-size: 10.5pt; color: #0F172A; line-height: 1.5; }
+
+            /* Tabelas e quebras */
+            .tabela-alinhada { width: 100%; border-collapse: collapse; margin-bottom: 4px; table-layout: fixed; }
+            .tabela-alinhada td { padding: 0; vertical-align: top; }
+            .col-direita { text-align: right; font-weight: bold; width: 140px; color: #333; }
+            .quebra-bloco { page-break-inside: avoid; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="p-0 m-0 min-h-screen flex flex-col">
+
+    <!-- TELA INICIAL / DIALOGO LOCALSTORAGE -->
+    <div id="tela-inicial" class="fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl text-center">
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">Curriculum</h1>
+            <p class="text-slate-600 mb-6">Crie currículos profissionais gratuitamente, de forma rápida, segura e direto no seu celular.</p>
+            
+            <div id="aviso-salvo" class="hidden mb-6 p-4 bg-blue-50 text-blue-800 rounded-xl text-sm font-medium">
+                🔔 Encontramos um currículo salvo no seu aparelho!
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="iniciarApp('continuar')" id="btn-continuar" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all">Continuar Editando</button>
+                <button onclick="iniciarApp('novo')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all">Criar Novo Currículo</button>
+                
+                <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl cursor-pointer transition-all border border-slate-300 block">
+                    Importar Backup (.json)
+                    <input type="file" id="import-json" accept=".json" class="hidden" onchange="importarDados(event)">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 py-3 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-bold text-blue-600 tracking-tight">Curriculum</span>
+            <span id="badge-salvo" class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium transition-all">salvo localmente</span>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="exportarDados()" class="text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg transition-all">Exportar dados</button>
+            <button onclick="limparDados()" class="text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1.5 rounded-lg transition-all">Resetar</button>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 max-w-7xl w-full mx-auto">
+        
+        <!-- COLUNA ESQUERDA: FORMULÁRIO -->
+        <section class="bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm overflow-y-auto max-h-[85vh]">
+            <div class="flex gap-2 overflow-x-auto pb-3 mb-6 border-b border-slate-100 scrollbar-none">
+                <button onclick="mudarPasso(1)" class="tab-btn active bg-blue-50 text-blue-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab1">1. Pessoais</button>
+                <button onclick="mudarPasso(2)" class="tab-btn bg-slate-50 text-slate-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab2">2. Objetivo</button>
+                <button onclick="mudarPasso(3)" class="tab-btn bg-slate-50 text-slate-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab3">3. Experiência</button>
+                <button onclick="mudarPasso(4)" class="tab-btn bg-slate-50 text-slate-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab4">4. Formação</button>
+                <button onclick="mudarPasso(5)" class="tab-btn bg-slate-50 text-slate-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab5">5. Cursos</button>
+                <button onclick="mudarPasso(6)" class="tab-btn bg-slate-50 text-slate-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab6">6. Habilidades</button>
+                <button onclick="mudarPasso(7)" class="tab-btn bg-slate-50 text-slate-600 font-medium text-sm px-4 py-2 rounded-xl whitespace-nowrap" id="tab7">7. Extras</button>
+            </div>
+
+            <form id="cv-form" oninput="atualizarPreview()" onchange="atualizarPreview()">
+                <!-- ETAPA 1: DADOS PESSOAIS -->
+                <div id="passo1" class="tab-content active space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">Dados Pessoais</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Nome Completo</label>
+                            <input type="text" id="nome" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: Pedro Gabriel">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Cargo Pretendido / Título</label>
+                            <input type="text" id="cargoPretendido" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: Assistente Administrativo">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Telefone</label>
+                            <input type="tel" id="telefone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: (11) 99999-9999">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">E-mail</label>
+                            <input type="email" id="email" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: pedro@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Cidade</label>
+                            <input type="text" id="cidade" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: Ribeirão Preto">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Estado</label>
+                            <input type="text" id="estado" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: SP">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">LinkedIn (Opcional)</label>
+                            <input type="text" id="linkedin" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="linkedin.com/in/usuario">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">GitHub (Opcional)</label>
+                            <input type="text" id="github" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="github.com/usuario">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ETAPA 2: OBJETIVO -->
+                <div id="passo2" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">Objetivo Profissional</h3>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Resumo das suas intenções na empresa</label>
+                        <textarea id="objetivo" rows="5" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Busco oportunidade para desenvolver minhas habilidades..."></textarea>
+                    </div>
+                </div>
+
+                <!-- ETAPA 3: EXPERIÊNCIA -->
+                <div id="passo3" class="tab-content space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-slate-800">Experiência Profissional</h3>
+                        <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600">
+                            <input type="checkbox" id="primeiroEmprego" onchange="togglePrimeiroEmprego(this.checked)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-5 h-5">
+                            Não possuo experiência profissional
+                        </label>
+                    </div>
+                    <div id="container-experiencias" class="space-y-4"></div>
+                    <button type="button" id="btn-add-experiencia" onclick="adicionarExperiencia()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all border border-dashed border-slate-300">+ Adicionar Experiência</button>
+                </div>
+
+                <!-- ETAPA 4: FORMAÇÃO -->
+                <div id="passo4" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">Formação Acadêmica</h3>
+                    <div id="container-formacoes" class="space-y-4"></div>
+                    <button type="button" onclick="adicionarFormacao()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all border border-dashed border-slate-300">+ Adicionar Formação</button>
+                </div>
+
+                <!-- ETAPA 5: CURSOS -->
+                <div id="passo5" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">Cursos e Certificações</h3>
+                    <div id="container-cursos" class="space-y-4"></div>
+                    <button type="button" onclick="adicionarCurso()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all border border-dashed border-slate-300">+ Adicionar Curso</button>
+                </div>
+
+                <!-- ETAPA 6: HABILIDADES -->
+                <div id="passo6" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">Habilidades</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-habilidade" class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: Excel Avançado, Comunicação">
+                        <button type="button" onclick="adicionarHabilidade()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 rounded-xl transition-all">Add</button>
+                    </div>
+                    <div id="container-habilidades" class="flex flex-wrap gap-2 pt-2"></div>
+                </div>
+
+                <!-- ETAPA 7: EXTRAS -->
+                <div id="passo7" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">Informações Complementares</h3>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Informações Adicionais (Opcional)</label>
+                        <textarea id="informacoesComplementares" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Ex: CNH B, Disponibilidade para viagens..."></textarea>
+                    </div>
+                    <div id="bloco-projetos-pessoais" class="hidden space-y-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Projetos Pessoais (Destaque Primeiro Emprego)</label>
+                        <textarea id="projetosPessoais" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-base" placeholder="Fale sobre projetos criados na escola ou portfólios..."></textarea>
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-100">
+                <button type="button" onclick="navegarAbas(-1)" class="text-slate-600 font-semibold px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition-all">Voltar</button>
+                <button type="button" onclick="navegarAbas(1)" class="text-white font-semibold px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 transition-all">Avançar</button>
+            </div>
+        </section>
+
+        <!-- COLUNA DIREITA: PREVIEW -->
+        <section class="flex flex-col gap-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Selecione o Modelo de Design:</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="mudarModelo('ats')" id="btn-model-ats" class="model-btn py-2.5 px-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm bg-blue-50 transition-all">1. ATS (Clean)</button>
+                    <button onclick="mudarModelo('moderno')" id="btn-model-moderno" class="model-btn py-2.5 px-3 rounded-xl border-2 border-slate-200 text-slate-600 font-medium text-sm hover:bg-slate-50 transition-all">2. Moderno</button>
+                    <button onclick="mudarModelo('executivo')" id="btn-model-executivo" class="model-btn py-2.5 px-3 rounded-xl border-2 border-slate-200 text-slate-600 font-medium text-sm hover:bg-slate-50 transition-all">3. Executivo</button>
+                </div>
+            </div>
+
+            <button onclick="gerarPDF()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-lg font-bold rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all">
+                🖨️ BAIXAR CURRÍCULO EM PDF
+            </button>
+
+            <!-- VIEWPORT DO PREVIEW -->
+            <div class="flex-1 overflow-auto bg-slate-700 p-4 rounded-2xl flex items-start justify-center max-h-[60vh] lg:max-h-none">
+                <div class="origin-top scale-[0.42] sm:scale-[0.55] md:scale-[0.65] lg:scale-[0.75] xl:scale-100 transition-all">
+                    <div id="cv-preview" class="preview-container cv-screen-box">
+                        <!-- Injetado via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ÁREA INVISÍVEL USADA APENAS NA IMPRESSÃO -->
+    <div id="print-area" style="display:none;"></div>
+
+    <script>
+        let appState = {
+            modeloAtual: 'ats',
+            passoAtual: 1,
+            primeiroEmprego: false,
+            dadosPessoais: { nome: '', cargoPretendido: '', telefone: '', email: '', cidade: '', estado: '', linkedin: '', github: '' },
+            objetivo: '',
+            experiencias: [],
+            formacoes: [],
+            cursos: [],
+            habilidades: [],
+            informacoesComplementares: '',
+            projetosPessoais: ''
+        };
+
+        window.onload = function() {
+            const salvo = localStorage.getItem('curriculum_data');
+            if (salvo) {
+                document.getElementById('aviso-salvo').classList.remove('hidden');
+                document.getElementById('btn-continuar').classList.remove('hidden');
+            }
+        };
+
+        function iniciarApp(tipo) {
+            if (tipo === 'continuar') {
+                const salvo = localStorage.getItem('curriculum_data');
+                if (salvo) { appState = JSON.parse(salvo); restaurarFormulario(); }
+            } else {
+                localStorage.removeItem('curriculum_data');
+            }
+            document.getElementById('tela-inicial').classList.add('hidden');
+            atualizarPreview();
+        }
+
+        function mudarPasso(passo) {
+            appState.passoAtual = passo;
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                btn.classList.toggle('bg-blue-50', idx + 1 === passo);
+                btn.classList.toggle('text-blue-600', idx + 1 === passo);
+                btn.classList.toggle('active', idx + 1 === passo);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, idx) => {
+                content.classList.toggle('active', idx + 1 === passo);
+            });
+        }
+
+        function navegarAbas(direcao) {
+            let novoPasso = appState.passoAtual + direcao;
+            if (novoPasso >= 1 && novoPasso <= 7) mudarPasso(novoPasso);
+        }
+
+        function mudarModelo(modelo) {
+            appState.modeloAtual = modelo;
+            document.querySelectorAll('.model-btn').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'bg-blue-50');
+                btn.classList.add('border-slate-200', 'text-slate-600');
+            });
+            document.getElementById(`btn-model-${modelo}`).classList.add('border-blue-600', 'text-blue-600', 'bg-blue-50');
+            
+            const preview = document.getElementById('cv-preview');
+            if(modelo === 'ats') preview.className = "preview-container cv-screen-box";
+            else if(modelo === 'moderno') preview.className = "preview-container cv-screen-box-moderno";
+            else preview.className = "preview-container cv-screen-box-executivo";
+            
+            atualizarPreview();
+        }
+
+        function togglePrimeiroEmprego(isChecked) {
+            appState.primeiroEmprego = isChecked;
+            document.getElementById('btn-add-experiencia').style.display = isChecked ? 'none' : 'block';
+            document.getElementById('bloco-projetos-pessoais').classList.toggle('hidden', !isChecked);
+            if(isChecked) { appState.experiencias = []; document.getElementById('container-experiencias').innerHTML = ''; }
+            atualizarPreview();
+        }
+
+        function adicionarExperiencia() {
+            appState.experiencias.push({ id: Date.now(), empresa: '', cargo: '', inicio: '', fim: '', desc: '' });
+            renderListaExperiencias();
+        }
+        function removerExperiencia(id) { appState.experiencias = appState.experiencias.filter(e => e.id !== id); renderListaExperiencias(); atualizarPreview(); }
+        function renderListaExperiencias() {
+            document.getElementById('container-experiencias').innerHTML = appState.experiencias.map(exp => `
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl relative space-y-2">
+                    <button type="button" onclick="removerExperiencia(${exp.id})" class="absolute top-2 right-2 text-red-500 text-sm font-bold">Remover</button>
+                    <input type="text" placeholder="Empresa" value="${exp.empresa}" oninput="capturarItem('experiencias', ${exp.id}, 'empresa', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                    <input type="text" placeholder="Cargo" value="${exp.cargo}" oninput="capturarItem('experiencias', ${exp.id}, 'cargo', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                    <div class="grid grid-cols-2 gap-2"><input type="text" placeholder="Início" value="${exp.inicio}" oninput="capturarItem('experiencias', ${exp.id}, 'inicio', this.value)" class="w-full p-2 border rounded-lg text-sm"><input type="text" placeholder="Fim" value="${exp.fim}" oninput="capturarItem('experiencias', ${exp.id}, 'fim', this.value)" class="w-full p-2 border rounded-lg text-sm"></div>
+                    <textarea placeholder="Descrição das Atividades" oninput="capturarItem('experiencias', ${exp.id}, 'desc', this.value)" class="w-full p-2 border rounded-lg text-sm" rows="2">${exp.desc}</textarea>
+                </div>
+            `).join('');
+        }
+
+        function adicionarFormacao() { appState.formacoes.push({ id: Date.now(), instituicao: '', curso: '', situacao: '', conclusao: '' }); renderListaFormacoes(); }
+        function removerFormacao(id) { appState.formacoes = appState.formacoes.filter(f => f.id !== id); renderListaFormacoes(); atualizarPreview(); }
+        function renderListaFormacoes() {
+            document.getElementById('container-formacoes').innerHTML = appState.formacoes.map(f => `
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl relative space-y-2">
+                    <button type="button" onclick="removerFormacao(${f.id})" class="absolute top-2 right-2 text-red-500 text-sm font-bold">Remover</button>
+                    <input type="text" placeholder="Instituição" value="${f.instituicao}" oninput="capturarItem('formacoes', ${f.id}, 'instituicao', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                    <input type="text" placeholder="Curso" value="${f.curso}" oninput="capturarItem('formacoes', ${f.id}, 'curso', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                    <div class="grid grid-cols-2 gap-2"><input type="text" placeholder="Situação" value="${f.situacao}" oninput="capturarItem('formacoes', ${f.id}, 'situacao', this.value)" class="w-full p-2 border rounded-lg text-sm"><input type="text" placeholder="Conclusão" value="${f.conclusao}" oninput="capturarItem('formacoes', ${f.id}, 'conclusao', this.value)" class="w-full p-2 border rounded-lg text-sm"></div>
+                </div>
+            `).join('');
+        }
+
+        function adicionarCurso() { appState.cursos.push({ id: Date.now(), nome: '', instituicao: '', cargaHoraria: '' }); renderListaCursos(); }
+        function removerCurso(id) { appState.cursos = appState.cursos.filter(c => c.id !== id); renderListaCursos(); atualizarPreview(); }
+        function renderListaCursos() {
+            document.getElementById('container-cursos').innerHTML = appState.cursos.map(c => `
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl relative space-y-2">
+                    <button type="button" onclick="removerCurso(${c.id})" class="absolute top-2 right-2 text-red-500 text-sm font-bold">Remover</button>
+                    <input type="text" placeholder="Curso" value="${c.nome}" oninput="capturarItem('cursos', ${c.id}, 'nome', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                    <input type="text" placeholder="Instituição" value="${c.instituicao}" oninput="capturarItem('cursos', ${c.id}, 'instituicao', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                    <input type="text" placeholder="Carga Horária" value="${c.cargaHoraria}" oninput="capturarItem('cursos', ${c.id}, 'cargaHoraria', this.value)" class="w-full p-2 border rounded-lg text-sm">
+                </div>
+            `).join('');
+        }
+
+        function adicionarHabilidade() {
+            const input = document.getElementById('input-habilidade');
+            if (input.value.trim()) { appState.habilidades.push(input.value.trim()); input.value = ''; renderHabilidades(); atualizarPreview(); }
+        }
+        function removerHabilidade(idx) { appState.habilidades.splice(idx, 1); renderHabilidades(); atualizarPreview(); }
+        function renderHabilidades() {
+            document.getElementById('container-habilidades').innerHTML = appState.habilidades.map((h, i) => `
+                <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">${h} <button type="button" onclick="removerHabilidade(${i})" class="text-blue-500 hover:text-blue-800 font-bold ml-1">×</button></span>
+            `).join('');
+        }
+
+        function capturarItem(arr, id, prop, val) { const o = appState[arr].find(i => i.id === id); if (o) o[prop] = val; atualizarPreview(); }
+
+        function atualizarPreview() {
+            appState.dadosPessoais = {
+                nome: document.getElementById('nome').value, cargoPretendido: document.getElementById('cargoPretendido').value,
+                telefone: document.getElementById('telefone').value, email: document.getElementById('email').value,
+                cidade: document.getElementById('cidade').value, estado: document.getElementById('estado').value,
+                linkedin: document.getElementById('linkedin').value, github: document.getElementById('github').value
+            };
+            appState.objetivo = document.getElementById('objetivo').value;
+            appState.informacoesComplementares = document.getElementById('informacoesComplementares').value;
+            appState.projetosPessoais = document.getElementById('projetosPessoais').value;
+
+            document.getElementById('cv-preview').innerHTML = obterTemplateHTML();
+            localStorage.setItem('curriculum_data', JSON.stringify(appState));
+        }
+
+        function obterTemplateHTML() {
+            const d = appState.dadosPessoais;
+            const contato = [d.telefone, d.email, (d.cidade && d.estado)?`${d.cidade} - ${d.estado}`:d.cidade, d.linkedin, d.github].filter(Boolean).join('   |   ');
+
+            // Adicionamos a classe 'quebra-bloco' para evitar cortes no meio de elementos individuais
+            let exp = '';
+            if(!appState.primeiroEmprego && appState.experiencias.length > 0) {
+                exp = `<h2 class="quebra-bloco">Experiência Profissional</h2>` + appState.experiencias.map(e => `
+                    <div class="quebra-bloco" style="margin-bottom: 12px;">
+                        <table class="tabela-alinhada">
+                            <tr>
+                                <td><strong>${e.cargo || 'Cargo'}</strong><br><span style="font-style:italic; color:#333;">${e.empresa || 'Empresa'}</span></td>
+                                <td class="col-direita">${e.inicio || ''} — ${e.fim || 'Atual'}</td>
+                            </tr>
+                        </table>
+                        <p style="margin: 4px 0 0 0; text-align:justify; white-space:pre-line;">${e.desc || ''}</p>
+                    </div>
+                `).join('');
+            }
+
+            let proj = (appState.primeiroEmprego && appState.projetosPessoais)? `<div class="quebra-bloco"><h2>Projetos Pessoais</h2><p style="margin:0 0 12px 0; text-align:justify; white-space:pre-line;">${appState.projetosPessoais}</p></div>` : '';
+            
+            let form = appState.formacoes.length > 0 ? `<h2 class="quebra-bloco">Formação Acadêmica</h2>` + appState.formacoes.map(f => `
+                <div class="quebra-bloco" style="margin-bottom: 10px;">
+                    <table class="tabela-alinhada">
+                        <tr>
+                            <td><strong>${f.curso || 'Curso'}</strong><br><span style="color:#333;">${f.instituicao || 'Instituição'} — <span style="font-style:italic; font-size:9.5pt;">${f.situacao || ''}</span></span></td>
+                            <td class="col-direita">${f.conclusao || ''}</td>
+                        </tr>
+                    </table>
+                </div>
+            `).join('') : '';
+
+            let cursos = appState.cursos.length > 0 ? `<h2 class="quebra-bloco">Cursos e Certificações</h2>` + appState.cursos.map(c => `
+                <div class="quebra-bloco" style="margin-bottom:5px;">• <strong>${c.nome || 'Curso'}</strong> — ${c.instituicao || ''} ${c.cargaHoraria? `(${c.cargaHoraria})`:''}</div>
+            `).join('') : '';
+
+            let hab = appState.habilidades.length > 0 ? `<div class="quebra-bloco"><h2>Habilidades</h2><p style="margin:0 0 12px 0;">${appState.habilidades.join(', ')}</p></div>` : '';
+            let extra = appState.informacoesComplementares ? `<div class="quebra-bloco"><h2>Informações Complementares</h2><p style="margin:0; text-align:justify; white-space:pre-line;">${appState.informacoesComplementares}</p></div>` : '';
+
+            if (appState.modeloAtual === 'ats') {
+                return `<h1>${d.nome || 'Seu Nome'}</h1><div class="contato-linha">${contato}</div>${appState.objetivo?`<div class="quebra-bloco"><h2>Objetivo Profissional</h2><p style="margin:0 0 12px 0; text-align:justify;">${appState.objetivo}</p></div>`:''}${exp}${proj}${form}${cursos}${hab}${extra}`;
+            } else if (appState.modeloAtual === 'moderno') {
+                return `<h1>${d.nome || 'Seu Nome'}</h1><div class="cargo-sub">${d.cargoPretendido || 'Sua Profissão'}</div><div class="contato-caixa">${contato}</div>${appState.objetivo?`<div class="quebra-bloco"><h2>Objetivo</h2><p style="margin:0 0 12px 0; text-align:justify;">${appState.objetivo}</p></div>`:''}${exp}${proj}${form}${cursos}${hab}${extra}`;
+            } else {
+                return `<h1>${d.nome || 'Seu Nome'}</h1><div class="cargo-sub">${d.cargoPretendido || 'Sua Área de Atuação'}</div><div class="contato-linha">${contato}</div>${appState.objetivo?`<div class="quebra-bloco"><h2>Resumo Executivo</h2><p style="margin:0 0 12px 0; text-align:justify;">${appState.objetivo}</p></div>`:''}${exp}${proj}${form}${cursos}${hab}${extra}`;
+            }
+        }
+
+        function restaurarFormulario() {
+            const p = appState.dadosPessoais;
+            document.getElementById('nome').value = p.nome||''; document.getElementById('cargoPretendido').value = p.cargoPretendido||'';
+            document.getElementById('telefone').value = p.telefone||''; document.getElementById('email').value = p.email||'';
+            document.getElementById('cidade').value = p.cidade||''; document.getElementById('estado').value = p.estado||'';
+            document.getElementById('linkedin').value = p.linkedin||''; document.getElementById('github').value = p.github||'';
+            document.getElementById('objetivo').value = appState.objetivo||'';
+            document.getElementById('informacoesComplementares').value = appState.informacoesComplementares||'';
+            document.getElementById('projetosPessoais').value = appState.projetosPessoais||'';
+            document.getElementById('primeiroEmprego').checked = appState.primeiroEmprego;
+            togglePrimeiroEmprego(appState.primeiroEmprego);
+            renderListaExperiencias(); renderListaFormacoes(); renderListaCursos(); renderHabilidades();
+            mudarModelo(appState.modeloAtual);
+        }
+
+        function exportarDados() {
+            const a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+            a.download = `${(appState.dadosPessoais.nome || 'Perfil').replace(/\s+/g, '_')}_Backup.json`;
+            a.click();
+        }
+
+        function importarDados(e) {
+            const r = new FileReader();
+            r.onload = function(evt) { try { appState = JSON.parse(evt.target.result); restaurarFormulario(); atualizarPreview(); alert('Sucesso!'); } catch(err) { alert('Erro.'); } };
+            r.readAsText(e.target.files[0]);
+        }
+
+        function limparDados() { if (confirm('Apagar tudo?')) { localStorage.removeItem('curriculum_data'); window.location.reload(); } }
+
+        // GERADOR DE PDF — USA WINDOW.PRINT() NATIVO (sem biblioteca externa)
+        function gerarPDF() {
+            const conteudoHTML = obterTemplateHTML();
+
+            let classeModelo = 'print-ats';
+            if (appState.modeloAtual === 'moderno')   classeModelo = 'print-moderno';
+            if (appState.modeloAtual === 'executivo') classeModelo = 'print-executivo';
+
+            // Injeta o conteúdo na área de impressão e aplica a classe do modelo
+            const printArea = document.getElementById('print-area');
+            printArea.className = classeModelo;
+            printArea.innerHTML = conteudoHTML;
+
+            // Mostra a área, imprime, esconde de volta
+            printArea.style.display = 'block';
+            window.print();
+            printArea.style.display = 'none';
+        }    </script>
+</body>
+</html>
